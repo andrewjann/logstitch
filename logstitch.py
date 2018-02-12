@@ -6,37 +6,46 @@ import zipfile
 ## Generate a GUI
 ## Be able to access a ZIP file
 
-def logStitch():
+def hello():
     print('This is Andrew\'s Logstitch program!\n')
 
 ## given the root folder directory and logtype will search for bluetooth or session logs
-def findFiles(logType):
+def inputDir():
+
+    inputFile = input('Enter the file directory: ')
+    if os.path.exists(inputFile) == False:
+        raise NameError('Invalid Directory')
+    elif zipfile.is_zipfile(inputFile) == True:
+        rootFolder = re.sub('[^\\\\]+$',"",inputFile)
+        os.chdir(rootFolder)
+        with zipfile.ZipFile(inputFile,"r") as unzip:
+            unzip.extractall()
+        inputFile = inputFile.replace(".zip","")
+    return inputFile
+
+#go through directory and find all appropriate files, then call sortFiles and createLog
+def logstitch(dir,logType):
+
     if logType == 's':
         log = 'session'
     elif logType == 'b':
         log = 'bluetooth'
     else:
         raise ValueError('Invalid Input')
-    
-    dir = input('Enter the file directory below: ')
-    if os.path.exists(dir) == False:
-        raise NameError('Invalid Directory')
-    elif zipfile.is_zipfile(dir) == True:
-        with zipfile.ZipFile(dir) as unzip:
-            unzip.extractall()
-        dir = dir.replace(".zip","")
-    #go through directory and find all appropriate files
+
     filtFiles = []
     for root, dirs, files in os.walk(dir):
         for i in range(len(files)):
-                if re.search('^'+log+'(.*)'+'.dec$',files[i]) != None:             
-                    filtFiles.append(files[i])
-    return filtFiles, root, log
+            if re.search('^'+log+'(.*)'+'.dec$',files[i]) != None:             
+                filtFiles.append(files[i])
+    
+    sortFiles(filtFiles,root)
+    createLog(filtFiles,root,log)
 
 ## generates text file with the list of files
 def createLog(files,dir,log):
     os.chdir(dir)
-    stitchLog = 'stitchLog_'+ log + '.txt'
+    stitchLog = 'stitchLog_'+ log + '.log'
     f_new = open(stitchLog,'w+'); f_new.close()
     for i in range(len(files)):
         print(files[i])
@@ -76,7 +85,7 @@ def partition(arr,low,high):
     return pInd
         
 if __name__ == '__main__':
-    logStitch()
-    a,b,c = findFiles('s')
-    sortFiles(a,b)
-    createLog(a,b,c)
+    hello()
+    dir = inputDir()
+    logstitch(dir,'s')
+    logstitch(dir,'b')
