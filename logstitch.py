@@ -1,6 +1,6 @@
 import re
 import os
-from zipfile import ZipFile as zf
+import zipfile
 
 ## TODO
 ## Generate a GUI
@@ -21,13 +21,16 @@ def findFiles(logType):
     dir = input('Enter the file directory below: ')
     if os.path.exists(dir) == False:
         raise NameError('Invalid Directory')
-    else:
-        #go through directory and find all appropriate files
-        filtFiles = []
-        for root, dirs, files in os.walk(dir):
-            for i in range(len(files)):
-                    if re.search('^'+log+'(.*)'+'.dec$',files[i]) != None:             
-                        filtFiles.append(files[i])
+    elif zipfile.is_zipfile(dir) == True:
+        with zipfile.ZipFile(dir) as unzip:
+            unzip.extractall()
+        dir = dir.replace(".zip","")
+    #go through directory and find all appropriate files
+    filtFiles = []
+    for root, dirs, files in os.walk(dir):
+        for i in range(len(files)):
+                if re.search('^'+log+'(.*)'+'.dec$',files[i]) != None:             
+                    filtFiles.append(files[i])
     return filtFiles, root, log
 
 ## generates text file with the list of files
