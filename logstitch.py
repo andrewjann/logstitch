@@ -4,7 +4,6 @@ import zipfile
 
 ## TODO
 ## Generate a GUI
-## Be able to access a ZIP file
 
 def hello():
     print('This is Andrew\'s Logstitch program!\n')
@@ -16,10 +15,15 @@ def inputDir():
     if os.path.exists(inputFile) == False:
         raise NameError('Invalid Directory')
     elif zipfile.is_zipfile(inputFile) == True:
+        ## Take the root directory of the zip file (via regex) and set as current directory
         rootFolder = re.sub('[^\\\\]+$',"",inputFile)
         os.chdir(rootFolder)
+        ## Create folder for extracted contents to be placed into
+        extractIntoFolder = inputFile.replace(".zip","")
+        os.mkdir(extractIntoFolder)
+        ## Unzip zip file and extract all contents into extractIntoFolder
         with zipfile.ZipFile(inputFile,"r") as unzip:
-            unzip.extractall()
+            unzip.extractall(extractIntoFolder)
         inputFile = inputFile.replace(".zip","")
     return inputFile
 
@@ -36,7 +40,7 @@ def logstitch(dir,logType):
     filtFiles = []
     for root, dirs, files in os.walk(dir):
         for i in range(len(files)):
-            if re.search('^'+log+'(.*)'+'.dec$',files[i]) != None:             
+            if re.search('^'+log+'(.*)'+'\.dec$',files[i]) != None:             
                 filtFiles.append(files[i])
     
     sortFiles(filtFiles,root)
