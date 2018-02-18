@@ -16,7 +16,7 @@ def inputDir():
         raise NameError('Invalid Directory')
     elif zipfile.is_zipfile(inputFile) == True:
         ## Take the root directory of the zip file (via regex) and set as current directory
-        rootFolder = re.sub('[^\\\\]+$',"",inputFile)
+        rootFolder = re.sub('[^\\\\|^////]+$',"",inputFile)
         os.chdir(rootFolder)
         ## Create folder for extracted contents to be placed into
         extractIntoFolder = inputFile.replace(".zip","")
